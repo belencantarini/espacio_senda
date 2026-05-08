@@ -126,6 +126,7 @@ export const actualizarUsuario = async (req, res) => {
   }
 };
 
+// ¡Acá está la función que me había comido!
 export const eliminarUsuario = async (req, res) => {
   try {
     const { id } = req.params;
@@ -145,7 +146,6 @@ export const cambiarPassword = async (req, res) => {
     const { id } = req.params;
     const { passwordActual, passwordNueva } = req.body;
 
-    // TODO EN INGLÉS: req.user.role y req.user.id
     if (req.user.role !== 'ADMIN' && req.user.id !== id) {
       return res.status(403).json({ mensaje: 'Solo podés cambiar tu propia contraseña' });
     }
@@ -168,6 +168,70 @@ export const cambiarPassword = async (req, res) => {
     await prisma.user.update({ where: { id }, data: { passwordHash } });
 
     res.json({ mensaje: 'Contraseña actualizada correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const desactivarUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const usuario = await prisma.user.findUnique({ where: { id: String(id) } });
+    if (!usuario) return res.status(404).json({ mensaje: "Usuario no encontrado" });
+
+    // Evitar desactivar al último ADMIN
+    if (usuario.role === 'ADMIN') {
+      const adminsActivos = await prisma.user.count({
+        where: { role: 'ADMIN', active: true }
+      });
+      
+      if (adminsActivos <= 1) {
+        return res.status(400).json({ 
+          mensaje: "¡Cuidado! No podés desactivar al último administrador activo del sistema." 
+        });
+      }
+    }
+
+    await prisma.user.update({
+      where: { id: String(id) },
+      data: { active: false }
+    });
+
+    res.json({ mensaje: "Usuario desactivado correctamente" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const activarUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.user.update({
+      where: { id: String(id) },
+      data: { active: true }
+    });
+
+    res.json({ mensaje: "Usuario activado correctamente" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const buscarPersonas = async (req, res) => {
+  try {
+    const { nombre, email, documento } = req.query;
+
+    const personas = await prisma.people.findMany({
+      where: {
+        ...(nombre && { name: { contains: nombre, mode: 'insensitive' } }),
+        ...(email && { email: { contains: email, mode: 'insensitive' } }),
+        ...(documento && { document: { contains: documento } })
+      }
+    });
+
+    res.json(personas);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

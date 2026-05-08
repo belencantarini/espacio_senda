@@ -1,45 +1,63 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminLayout from "./components/AdminLayout";
 
-// páginas
+// Páginas Públicas
 import Login from "./pages/Login";
-import AdminDashboard from "./pages/admin/Dashboard";
-import PacienteDashboard from "./pages/paciente/Dashboard";
+import ForgotPassword from "./pages/ForgotPassword"; 
+import ResetPassword from "./pages/ResetPassword";   
 import NoAutorizado from "./pages/NoAutorizado";
+
+// Páginas de Administración
+import AdminDashboard from "./pages/admin/Dashboard";
+import UsuariosAdmin from "./pages/admin/UsuariosAdmin";
+import ProfesionalesAdmin from "./pages/admin/ProfesionalesAdmin";
+import ServiciosAdmin from "./pages/admin/ServiciosAdmin";
+import TurnosAdmin from "./pages/admin/TurnosAdmin"; // <-- ¡Nuevo Import!
+import CambiarPassword from "./pages/admin/CambiarPassword"; 
+
+// Páginas de Paciente
+import PacienteDashboard from "./pages/paciente/Dashboard";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* Redirigir la raíz al login para que no quede la pantalla en blanco */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* pública */}
+        {/* --- RUTAS PÚBLICAS --- */}
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/no-autorizado" element={<NoAutorizado />} />
 
-        {/* ADMIN */}
+        {/* --- RUTAS DE ADMINISTRADOR (CON LAYOUT Y MENÚ) --- */}
         <Route
           path="/admin"
           element={
             <ProtectedRoute rolesPermitidos={["ADMIN"]}>
-              <AdminDashboard />
+              <AdminLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="usuarios" element={<UsuariosAdmin />} />
+          <Route path="profesionales" element={<ProfesionalesAdmin />} />
+          <Route path="servicios" element={<ServiciosAdmin />} />
+          <Route path="turnos" element={<TurnosAdmin />} /> {/* <-- Ruta agregada */}
+          <Route path="mi-perfil" element={<CambiarPassword />} />
+        </Route>
 
-        {/* PACIENTE */}
+        {/* --- RUTAS DE PACIENTE --- */}
         <Route
           path="/paciente"
           element={
-            <ProtectedRoute rolesPermitidos={["PACIENTE"]}>
+            <ProtectedRoute rolesPermitidos={["PATIENT"]}>
               <PacienteDashboard />
             </ProtectedRoute>
           }
         />
-
-        {/* fallback */}
-        <Route path="/no-autorizado" element={<NoAutorizado />} />
 
       </Routes>
     </BrowserRouter>

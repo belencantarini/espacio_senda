@@ -1,34 +1,34 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import "./Sidebar.css";
 
 function Sidebar() {
   const navigate = useNavigate();
-
-  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
+    logout();
     navigate("/login");
   };
 
   return (
     <div className="sidebar">
-
-      <h2 className="logo">Estética</h2>
+      
+      <h2 className="logo">Espacio Senda</h2>
 
       {/* 👤 Usuario logueado */}
       <div className="user-info">
-        <p><strong>{usuario?.nombre}</strong></p>
-        <span>{usuario?.rol}</span>
+        <p><strong>{user?.nombre || user?.name || "Usuario"}</strong></p>
+        <span>{user?.rol || user?.role || "Sin rol"}</span>
       </div>
 
       <nav>
         <ul>
-          <li><Link to="/admin">Dashboard</Link></li>
-          <li><Link to="/usuarios">Usuarios</Link></li>
-          <li><Link to="/turnos">Turnos</Link></li>
-          <li><Link to="/servicios">Servicios</Link></li>
+          <li><NavLink to="/admin" end>Dashboard</NavLink></li>
+          <li><NavLink to="/admin/usuarios">Usuarios</NavLink></li>
+          <li><NavLink to="/admin/profesionales">Profesionales</NavLink></li>
+          <li><NavLink to="/admin/turnos">Turnos</NavLink></li>
+          <li><NavLink to="/admin/servicios">Servicios</NavLink></li>
         </ul>
       </nav>
 

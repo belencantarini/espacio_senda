@@ -1,14 +1,20 @@
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 const ProtectedRoute = ({ children, rolesPermitidos }) => {
-  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const { user, isLoading } = useAuth();
 
-  if (!usuario) {
-    return <Navigate to="/login" />;
+  if (isLoading) {
+    return <div style={{ padding: "20px", textAlign: "center" }}>Cargando sistema...</div>; 
   }
 
-  if (!rolesPermitidos.includes(usuario.rol)) {
-    return <Navigate to="/no-autorizado" />;
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Verificamos usando user.role (en inglés)
+  if (rolesPermitidos && !rolesPermitidos.includes(user.role)) {
+    return <Navigate to="/no-autorizado" replace />;
   }
 
   return children;

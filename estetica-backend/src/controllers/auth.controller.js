@@ -1,6 +1,7 @@
 import prisma from '../config/prisma.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer'; // Agregado para los correos
 
 const validarEmail = (email) => {
   const regex = /\S+@\S+\.\S+/;
@@ -160,5 +161,92 @@ export const perfil = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error al obtener perfil" });
+  }
+};
+
+// ==========================================
+// NUEVAS FUNCIONES DE RECUPERACIÓN DE CONTRASEÑA
+// ==========================================
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+});
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    const persona = await prisma.people.findUnique({
+      where: { email },
+      include: { user: true }
+    });
+
+    if (!persona || !persona.user) {
+      return res.status(404).json({ mensaje: "No existe un usuario registrado con ese email" });
+    }
+
+    const resetToken = jwt.sign(
+      { id: persona.user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '15m' } 
+    );
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
+
+    await transporter.sendMail({
+      from: `"Espacio Senda" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Recuperación de Contraseña - Espacio Senda',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+          <h2 style="color: #6b21a8; text-align: center;">Recuperación de contraseña</h2>
+          <p>Hola <b>${persona.name}</b>,</p>
+          <p>Recibimos una solicitud para restablecer tu contraseña en Espacio Senda. Hacé clic en el siguiente botón para crear una nueva:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetLink}" style="padding: 12px 24px; background-color: #6b21a8; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Restablecer mi contraseña</a>
+          </div>
+          <p style="color: #64748b; font-size: 14px;">⚠️ Este enlace es válido por 15 minutos.</p>
+          <p style="color: #64748b; font-size: 14px;">Si no solicitaste este cambio, podés ignorar este correo tranquilamente.</p>
+        </div>
+      `
+    });
+
+    res.json({ mensaje: "Te enviamos un correo con las instrucciones." });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, nuevaPassword } = req.body;
+
+    if (!token || !nuevaPassword) {
+      return res.status(400).json({ mensaje: "El token y la nueva contraseña son obligatorios" });
+    }
+
+    const decodificado = jwt.verify(token, process.env.JWT_SECRET);
+    const passwordHash = await bcrypt.hash(nuevaPassword, 10);
+
+    await prisma.user.update({
+      where: { id: decodificado.id },
+      data: { passwordHash }
+    });
+
+    res.json({ mensaje: "¡Contraseña restablecida correctamente! Ya podés iniciar sesión." });
+
+  } catch (error) {
+    res.status(400).json({ mensaje: "El enlace es inválido o ha expirado. Volvé a solicitar uno nuevo." });
   }
 };
