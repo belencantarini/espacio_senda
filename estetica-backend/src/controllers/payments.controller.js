@@ -1,6 +1,6 @@
 import prisma from '../config/prisma.js';
 
-// CREAR PAGO 
+// CREAR PAGO
 
 export const crearPago = async (req, res) => {
   try {
@@ -228,6 +228,109 @@ export const registrarReembolso = async (req, res) => {
     res.status(201).json({
       mensaje: 'Reembolso registrado correctamente',
       reembolso: resultado,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// HISTORIAL DE PAGOS
+
+export const obtenerHistorialPagos = async (req, res) => {
+  try {
+    const {
+      patientId,
+      professionalId,
+      method,
+      type,
+      isRefund,
+      desde,
+      hasta,
+    } = req.query;
+
+    // Construir filtros dinámicamente
+    const where = {};
+
+    // Filtro por método de pago
+    if (method) {
+      const metodosValidos = ['CASH', 'TRANSFER', 'CREDIT_CARD', 'DEBIT_CARD'];
+      if (!metodosValidos.includes(method)) {
+        return res.status(400).json({
+          mensaje: `Método inválido. Valores permitidos: ${metodosValidos.join(', ')}`,
+        });
+      }
+      where.method = method;
+    }
+
+    // Filtro por tipo de pago
+    if (type) {
+      const tiposValidos = ['DEPOSIT', 'FINAL_PAYMENT', 'FULL_PAYMENT'];
+      if (!tiposValidos.includes(type)) {
+        return res.status(400).json({
+          mensaje: `Tipo inválido. Valores permitidos: ${tiposValidos.join(', ')}`,
+        });
+      }
+      where.type = type;
+    }
+
+    // Filtro por reembolsos
+    if (isRefund !== undefined) {
+      where.isRefund = isRefund === 'true';
+    }
+
+    // Filtro por rango de fechas
+    if (desde || hasta) {
+      where.paidAt = {
+        ...(desde && { gte: new Date(desde) }),
+        ...(hasta && { lte: new Date(hasta) }),
+      };
+    }
+
+    // Filtro por paciente o profesional (van anidados en appointment)
+    if (patientId || professionalId) {
+      where.appointment = {
+        ...(patientId && { patientId }),
+        ...(professionalId && {
+          professionalService: { professionalId },
+        }),
+      };
+    }
+
+    const pagos = await prisma.payment.findMany({
+      where,
+      include: {
+        appointment: {
+          include: {
+            patient: { include: { person: true } },
+            professionalService: {
+              include: {
+                professional: { include: { person: true } },
+                service: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { paidAt: 'desc' },
+    });
+
+    // Calcular totales del resultado
+    const totalCobrado = pagos
+      .filter((p) => !p.isRefund)
+      .reduce((acc, p) => acc + Number(p.amount), 0);
+
+    const totalReembolsado = pagos
+      .filter((p) => p.isRefund)
+      .reduce((acc, p) => acc + Number(p.amount), 0);
+
+    res.json({
+      resumen: {
+        cantidadRegistros: pagos.length,
+        totalCobrado,
+        totalReembolsado,
+        neto: totalCobrado - totalReembolsado,
+      },
+      pagos,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
