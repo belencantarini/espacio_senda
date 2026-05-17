@@ -8,6 +8,8 @@ import servicesRoutes from './src/routes/services.routes.js';
 import appointmentsRoutes from './src/routes/appointments.routes.js';
 import reportsRoutes from './src/routes/reports.routes.js';
 import paymentsRoutes from './src/routes/payments.routes.js';
+import iniciarRecordatorios from './src/utils/reminders.js';
+import remindersRoutes from './src/routes/reminders.routes.js';
 
 const app = express();
 
@@ -41,6 +43,8 @@ app.use('/api/services', servicesRoutes);
 app.use('/api/appointments', appointmentsRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/payments', paymentsRoutes);
+app.use('/api/reminders', remindersRoutes);
+
 // --- TEST ---
 app.get('/', (req, res) => {
   res.send('API de Espacio Senda funcionando correctamente');
@@ -62,6 +66,9 @@ app.use((err, req, res, next) => {
 // --- SERVIDOR ---
 const PORT = process.env.PORT || 3000;
 
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
+
+iniciarRecordatorios();
