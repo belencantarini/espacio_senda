@@ -13,8 +13,10 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import UsuariosAdmin from "./pages/admin/UsuariosAdmin";
 import ProfesionalesAdmin from "./pages/admin/ProfesionalesAdmin";
 import ServiciosAdmin from "./pages/admin/ServiciosAdmin";
-import TurnosAdmin from "./pages/admin/TurnosAdmin"; // <-- ¡Nuevo Import!
+import TurnosAdmin from "./pages/admin/TurnosAdmin"; 
 import CambiarPassword from "./pages/admin/CambiarPassword"; 
+import AperturaAgenda   from "./pages/admin/AperturaAgenda";
+import CalendarioSemanal from "./pages/admin/CalendarioSemanal";
 
 // Páginas de Paciente
 import PacienteDashboard from "./pages/paciente/Dashboard";
@@ -45,7 +47,9 @@ function App() {
           <Route path="usuarios" element={<UsuariosAdmin />} />
           <Route path="profesionales" element={<ProfesionalesAdmin />} />
           <Route path="servicios" element={<ServiciosAdmin />} />
-          <Route path="turnos" element={<TurnosAdmin />} /> {/* <-- Ruta agregada */}
+          <Route path="turnos" element={<TurnosAdmin />} />
+          <Route path="calendario"     element={<CalendarioSemanal />} />
+          <Route path="apertura-agenda" element={<AperturaAgenda />} />
           <Route path="mi-perfil" element={<CambiarPassword />} />
         </Route>
 
