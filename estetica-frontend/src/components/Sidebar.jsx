@@ -27,7 +27,9 @@ function Sidebar() {
           <li><NavLink to="/admin" end>Dashboard</NavLink></li>
           <li><NavLink to="/admin/usuarios">Usuarios</NavLink></li>
           <li><NavLink to="/admin/profesionales">Profesionales</NavLink></li>
+          <li><NavLink to="/admin/apertura-agenda">Apertura de Agenda</NavLink></li>
           <li><NavLink to="/admin/turnos">Turnos</NavLink></li>
+      
           <li><NavLink to="/admin/servicios">Servicios</NavLink></li>
         </ul>
       </nav>
