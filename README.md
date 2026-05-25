@@ -70,10 +70,19 @@ cd estetica-backend
 npm install
 ```
 
+> **Nota:** Si `npm install` falla con errores de permisos o paquetes no encontrados, ejecutá como Administrador:
+> ```bash
+> Remove-Item -Recurse -Force node_modules
+> Remove-Item -Force package-lock.json
+> npm install
+> ```
+ 
+
 Creá el archivo `.env` dentro de la carpeta `estetica-backend/`:
 
 ```env
 DATABASE_URL="postgresql://postgres:TU_CONTRASEÑA@localhost:5432/espacio_senda"
+DIRECT_URL="postgresql://postgres:TU_CONTRASEÑA@localhost:5432/espacio_senda"
 JWT_SECRET="tu_clave_secreta_aqui"
 PORT=3000
 ```
@@ -94,7 +103,13 @@ node prisma/seed2.js
 Para limpiar toda la base de datos:
 
 ```bash
-node prisma/reset-all.js
+node prisma/reset-data.js
+```
+
+Ver la base de datos visualmente 
+```bash
+cd estetica-backend
+npx prisma studio
 ```
 
 Iniciá el servidor:
@@ -114,7 +129,26 @@ npm run dev
 ```bash
 cd ../estetica-frontend
 npm install
+```
+
+> **Nota:** Si `npm install` falla, aplicá el mismo fix que en el backend (borrar `node_modules` y `package-lock.json` y volver a instalar).
+
+Creá el archivo `.env` dentro de la carpeta `estetica-frontend/`:
+
+```env
+VITE_API_URL=http://localhost:3000/api
+```
+
+Iniciá el servidor:
+
+```bash
 npm start
+```
+
+Tambien podes iniciar el servidor en modo desarrollo:
+
+```bash
+npm run dev
 ```
 
 ## Uso
@@ -123,6 +157,15 @@ Una vez iniciados ambos servidores:
 
 - **Frontend:** http://localhost:5173
 - **Backend:** http://localhost:3000
+
+### Credenciales de acceso por defecto
+ 
+| Rol | Email | Contraseña |
+|-----|-------|------------|
+| Administrador | admin@espaciosenda.com | 123456 |
+| Paciente (prueba) | paciente@prueba.com | 123456 |
+ 
+> **Importante:** Estas credenciales son solo para desarrollo. Cambiálas antes de cualquier despliegue en producción.
 
 ## Funcionalidades
 
