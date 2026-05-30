@@ -223,6 +223,8 @@ export const desactivarServicio = async (req, res) => {
   }
 };
 
+// PROFESSIONAL SERVICES
+
 export const crearProfessionalService = async (req, res) => {
   try {
     const { professionalId, serviceId, price, durationMinutes } = req.body;
@@ -332,6 +334,24 @@ export const actualizarProfessionalService = async (req, res) => {
         .status(404)
         .json({ mensaje: "Configuración profesional-servicio no encontrada" });
     }
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const obtenerServiciosPorProfesional = async (req, res) => {
+  try {
+    const { professionalId } = req.params;
+
+    const servicios = await prisma.professionalService.findMany({
+      where: { professionalId },
+      include: {
+        service: { include: { category: true } },
+      },
+      orderBy: { service: { name: "asc" } },
+    });
+
+    res.json(servicios);
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
