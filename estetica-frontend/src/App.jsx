@@ -21,7 +21,7 @@ import PacientesAdmin from "./pages/admin/PacientesAdmin";
 import FichaPacienteAdmin from "./pages/admin/FichaPacienteAdmin";
 
 // Páginas de Paciente
-import PacienteDashboard from "./pages/paciente/Dashboard";
+//mport PacienteDashboard from "./pages/paciente/Dashboard";
 
 function App() {
   return (
@@ -55,16 +55,7 @@ function App() {
           <Route path="pacientes" element={<PacientesAdmin />} />
           <Route path="pacientes/:id" element={<FichaPacienteAdmin />} />
         </Route>
-
-        {/* --- RUTAS DE PACIENTE --- */}
-        <Route
-          path="/paciente"
-          element={
-            <ProtectedRoute rolesPermitidos={["PATIENT"]}>
-              <PacienteDashboard />
-            </ProtectedRoute>
-          }
-        />
+        
       </Routes>
     </BrowserRouter>
   );
