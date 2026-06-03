@@ -18,8 +18,8 @@ import CambiarPassword from "./pages/admin/CambiarPassword";
 import AperturaAgenda   from "./pages/admin/AperturaAgenda";
 import CalendarioSemanal from "./pages/admin/CalendarioSemanal";
 
-// Páginas de Paciente
-import PacienteDashboard from "./pages/paciente/Dashboard";
+// Páginas de Paciente (Comentado temporalmente por QA)
+// import PacienteDashboard from "./pages/paciente/Dashboard";
 
 function App() {
   return (
@@ -53,7 +53,8 @@ function App() {
           <Route path="mi-perfil" element={<CambiarPassword />} />
         </Route>
 
-        {/* --- RUTAS DE PACIENTE --- */}
+        {/* --- RUTAS DE PACIENTE (Comentadas temporalmente por QA) --- */}
+        {/* 
         <Route
           path="/paciente"
           element={
@@ -61,7 +62,8 @@ function App() {
               <PacienteDashboard />
             </ProtectedRoute>
           }
-        />
+        /> 
+        */}
 
       </Routes>
     </BrowserRouter>
