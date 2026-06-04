@@ -13,24 +13,32 @@ function Sidebar() {
 
   return (
     <div className="sidebar">
-      
       <h2 className="logo">Espacio Senda</h2>
 
       {/* 👤 Usuario logueado */}
       <div className="user-info">
-        <p><strong>{user?.nombre || user?.name || "Usuario"}</strong></p>
+        <p>
+          <strong>{user?.nombre || user?.name || "Usuario"}</strong>
+        </p>
         <span>{user?.rol || user?.role || "Sin rol"}</span>
       </div>
 
       <nav>
         <ul>
-          <li><NavLink to="/admin" end>Dashboard</NavLink></li>
+          <li>
+            <NavLink to="/admin" end>
+              Dashboard
+            </NavLink>
+          </li>
           <li><NavLink to="/admin/usuarios">Usuarios</NavLink></li>
           <li><NavLink to="/admin/profesionales">Profesionales</NavLink></li>
           <li><NavLink to="/admin/apertura-agenda">Apertura de Agenda</NavLink></li>
           <li><NavLink to="/admin/turnos">Turnos</NavLink></li>
-      
           <li><NavLink to="/admin/servicios">Servicios</NavLink></li>
+          <li><NavLink to="/admin/categorias">Categorías de Servicios</NavLink></li>
+          <li><NavLink to="/admin/servicios-profesional">Servicios por Profesional</NavLink></li>
+          <li><NavLink to="/admin/pacientes">Pacientes</NavLink></li>
+          
         </ul>
       </nav>
 
@@ -38,7 +46,6 @@ function Sidebar() {
       <button className="logout" onClick={handleLogout}>
         Cerrar sesión
       </button>
-
     </div>
   );
 }

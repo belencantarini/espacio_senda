@@ -233,6 +233,8 @@ export const desactivarServicio = async (req, res) => {
   }
 };
 
+// PROFESSIONAL SERVICES
+
 export const crearProfessionalService = async (req, res) => {
   try {
     const { professionalId, serviceId, price, durationMinutes } = req.body;
@@ -345,5 +347,24 @@ export const actualizarProfessionalService = async (req, res) => {
     }
     console.error("Error en actualizarProfessionalService:", error);
     res.status(500).json({ error: 'Error interno del servidor al actualizar configuración' });
+  }
+};
+
+export const obtenerServiciosPorProfesional = async (req, res) => {
+  try {
+    const { professionalId } = req.params;
+
+    const servicios = await prisma.professionalService.findMany({
+      where: { professionalId },
+      include: {
+        service: { include: { category: true } },
+      },
+      orderBy: { service: { name: "asc" } },
+    });
+
+    res.json(servicios);
+  } catch (error) {
+    console.error("Error en obtenerServiciosPorProfesional:", error);
+    res.status(500).json({ error: 'Error interno del servidor al obtener servicios por profesional' });
   }
 };

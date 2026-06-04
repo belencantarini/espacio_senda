@@ -8,44 +8,44 @@ import {
   obtenerHistorialPagos,
 } from "../controllers/patients.controller.js";
 import verificarToken from "../middleware/verificarToken.js";
-import authorize from "../middleware/authorize.js";
+import autorizarRoles from "../middleware/autorizarRoles.js";
 
 const router = express.Router();
 
 router.get(
   "/",
   verificarToken,
-  authorize(["ADMIN", "RECEPTIONIST", "PROFESSIONAL"]),
+  autorizarRoles(["ADMIN", "RECEPTIONIST", "PROFESSIONAL"]),
   obtenerPacientes,
 );
 router.get(
   "/:id",
   verificarToken,
-  authorize(["ADMIN", "RECEPTIONIST", "PROFESSIONAL"]),
+  autorizarRoles(["ADMIN", "RECEPTIONIST", "PROFESSIONAL"]),
   obtenerPacientePorId,
 );
 router.post(
   "/",
   verificarToken,
-  authorize(["ADMIN", "RECEPTIONIST"]),
+  autorizarRoles(["ADMIN", "RECEPTIONIST"]),
   crearPaciente,
 );
 router.patch(
   "/:id",
   verificarToken,
-  authorize(["ADMIN", "RECEPTIONIST"]),
+  autorizarRoles(["ADMIN", "RECEPTIONIST"]),
   actualizarPaciente,
 );
 router.get(
   "/:id/appointments",
   verificarToken,
-  authorize(["ADMIN", "RECEPTIONIST", "PROFESSIONAL"]),
+  autorizarRoles(["ADMIN", "RECEPTIONIST", "PROFESSIONAL"]),
   obtenerHistorialTurnos,
 );
 router.get(
   "/:id/payments",
   verificarToken,
-  authorize(["ADMIN", "RECEPTIONIST"]),
+  autorizarRoles(["ADMIN", "RECEPTIONIST"]),
   obtenerHistorialPagos,
 );
 
