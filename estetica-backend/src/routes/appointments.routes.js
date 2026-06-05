@@ -22,9 +22,30 @@ const router = express.Router();
  *       - Turnos
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: professionalId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: serviceId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: date
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: "2026-05-07"
  *     responses:
  *       200:
  *         description: Horarios disponibles obtenidos correctamente
+ *       400:
+ *         description: professionalId, serviceId y date son obligatorios
+ *       404:
+ *         description: El profesional no ofrece ese servicio o no tiene disponibilidad
  *       401:
  *         description: Token inválido o ausente
  */
@@ -39,6 +60,30 @@ router.get('/available-slots', verificarToken, autorizarRoles(['ADMIN', 'RECEPTI
  *       - Turnos
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: professionalId
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: patientId
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [PENDING, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW, IN_PROGRESS]
+ *       - in: query
+ *         name: desde
+ *         schema:
+ *           type: string
+ *           example: "2026-01-01"
+ *       - in: query
+ *         name: hasta
+ *         schema:
+ *           type: string
+ *           example: "2026-12-31"
  *     responses:
  *       200:
  *         description: Lista de turnos obtenida correctamente
@@ -81,11 +126,42 @@ router.get('/:id',             verificarToken, autorizarRoles(['ADMIN', 'RECEPTI
  *       - Turnos
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - professionalServiceId
+ *               - availabilityId
+ *               - patientId
+ *               - startsAt
+ *             properties:
+ *               professionalServiceId:
+ *                 type: string
+ *                 example: uuid-professional-service
+ *               availabilityId:
+ *                 type: string
+ *                 example: uuid-availability
+ *               patientId:
+ *                 type: string
+ *                 example: uuid-patient
+ *               startsAt:
+ *                 type: string
+ *                 example: "2026-06-10T09:00:00Z"
+ *               notes:
+ *                 type: string
+ *                 example: Paciente sin antecedentes
  *     responses:
  *       201:
  *         description: Turno creado correctamente
  *       400:
  *         description: Datos inválidos
+ *       409:
+ *         description: El horario se superpone con un turno existente
+ *       404:
+ *         description: Servicio, disponibilidad o paciente no encontrado
  *       401:
  *         description: Token inválido o ausente
  */
@@ -106,6 +182,19 @@ router.post('/',               verificarToken, autorizarRoles(['ADMIN', 'RECEPTI
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [CONFIRMED, CANCELLED, COMPLETED, NO_SHOW, IN_PROGRESS]
+ *                 example: CONFIRMED
  *     responses:
  *       200:
  *         description: Estado actualizado correctamente

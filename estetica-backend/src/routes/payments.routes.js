@@ -23,6 +23,39 @@ router.use(verificarToken);
  *       - Pagos
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: patientId
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: professionalId
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: method
+ *         schema:
+ *           type: string
+ *           enum: [CASH, TRANSFER, CREDIT_CARD, DEBIT_CARD]
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [DEPOSIT, FINAL_PAYMENT, FULL_PAYMENT]
+ *       - in: query
+ *         name: isRefund
+ *         schema:
+ *           type: boolean
+ *       - in: query
+ *         name: desde
+ *         schema:
+ *           type: string
+ *           example: "2026-01-01"
+ *       - in: query
+ *         name: hasta
+ *         schema:
+ *           type: string
+ *           example: "2026-12-31"
  *     responses:
  *       200:
  *         description: Historial de pagos obtenido correctamente
@@ -47,6 +80,28 @@ router.get('/historial', obtenerHistorialPagos);
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - amount
+ *               - method
+ *               - type
+ *             properties:
+ *               amount:
+ *                 type: number
+ *                 example: 85000
+ *               method:
+ *                 type: string
+ *                 enum: [CASH, TRANSFER, CREDIT_CARD, DEBIT_CARD]
+ *                 example: TRANSFER
+ *               type:
+ *                 type: string
+ *                 enum: [DEPOSIT, FINAL_PAYMENT, FULL_PAYMENT]
+ *                 example: FULL_PAYMENT
  *     responses:
  *       201:
  *         description: Pago registrado correctamente
@@ -101,6 +156,23 @@ router.get('/:appointmentId', obtenerPagosPorTurno);
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - amount
+ *               - method
+ *             properties:
+ *               amount:
+ *                 type: number
+ *                 example: 39000
+ *               method:
+ *                 type: string
+ *                 enum: [CASH, TRANSFER, CREDIT_CARD, DEBIT_CARD]
+ *                 example: TRANSFER
  *     responses:
  *       201:
  *         description: Reembolso registrado correctamente

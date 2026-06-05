@@ -50,6 +50,19 @@ router.get(
  *       - Usuarios
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: nombre
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: documento
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Personas encontradas correctamente
@@ -107,6 +120,39 @@ router.get(
  *       - Usuarios
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nombre
+ *               - email
+ *               - password
+ *               - rol
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *                 example: María García
+ *               email:
+ *                 type: string
+ *                 example: maria@espaciosenda.com
+ *               document:
+ *                 type: string
+ *                 example: 32123456
+ *               documentType:
+ *                 type: string
+ *                 example: DNI
+ *               phone:
+ *                 type: string
+ *                 example: 11-2345-6789
+ *               password:
+ *                 type: string
+ *                 example: Password123!
+ *               rol:
+ *                 type: string
+ *                 example: RECEPTIONIST
  *     responses:
  *       201:
  *         description: Usuario creado correctamente
@@ -139,6 +185,20 @@ router.post(
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               rol:
+ *                 type: string
+ *               active:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Usuario actualizado correctamente
@@ -267,6 +327,22 @@ router.delete(
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - passwordActual
+ *               - passwordNueva
+ *             properties:
+ *               passwordActual:
+ *                 type: string
+ *                 example: MiPasswordActual123
+ *               passwordNueva:
+ *                 type: string
+ *                 example: MiPasswordNueva456
  *     responses:
  *       200:
  *         description: Contraseña actualizada correctamente

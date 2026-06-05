@@ -81,11 +81,54 @@ router.get('/:id', verificarToken, autorizarRoles(['ADMIN', 'RECEPTIONIST', 'PRO
  *       - Profesionales
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - documentType
+ *               - document
+ *               - email
+ *               - phone
+ *               - specialty
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Dra. Leila Senger
+ *               documentType:
+ *                 type: string
+ *                 enum: [DNI, PASSPORT, CUIL, CUIT]
+ *                 example: DNI
+ *               document:
+ *                 type: string
+ *                 example: 28123456
+ *               email:
+ *                 type: string
+ *                 example: lsenger@espaciosenda.com
+ *               phone:
+ *                 type: string
+ *                 example: 11-3456-7890
+ *               specialty:
+ *                 type: string
+ *                 example: Medicina Estética
+ *               bio:
+ *                 type: string
+ *                 example: Especialista en medicina estética con 10 años de experiencia
+ *               googleCalendarId:
+ *                 type: string
+ *                 example: lsenger@gmail.com
+ *               password:
+ *                 type: string
+ *                 example: Password123!
  *     responses:
  *       201:
  *         description: Profesional creado correctamente
- *       400:
- *         description: Datos inválidos
+ *       409:
+ *         description: Ya existe un profesional con ese email
  *       401:
  *         description: Token inválido o ausente
  */
@@ -106,6 +149,24 @@ router.post('/', verificarToken, autorizarRoles(['ADMIN']), crearProfesional);
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               specialty:
+ *                 type: string
+ *               bio:
+ *                 type: string
+ *               googleCalendarId:
+ *                 type: string
+ *               active:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Profesional actualizado correctamente
@@ -155,6 +216,27 @@ router.get('/:id/schedule', verificarToken, autorizarRoles(['ADMIN', 'RECEPTIONI
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - dayOfWeek
+ *               - startTime
+ *               - endTime
+ *             properties:
+ *               dayOfWeek:
+ *                 type: integer
+ *                 example: 2
+ *                 description: "0=Dom 1=Lun 2=Mar 3=Mié 4=Jue 5=Vie 6=Sáb"
+ *               startTime:
+ *                 type: string
+ *                 example: "09:00"
+ *               endTime:
+ *                 type: string
+ *                 example: "18:00"
  *     responses:
  *       201:
  *         description: Horario creado correctamente
@@ -185,6 +267,21 @@ router.post('/:id/schedule', verificarToken, autorizarRoles(['ADMIN', 'PROFESSIO
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               dayOfWeek:
+ *                 type: integer
+ *                 example: 3
+ *               startTime:
+ *                 type: string
+ *                 example: "10:00"
+ *               endTime:
+ *                 type: string
+ *                 example: "17:00"
  *     responses:
  *       200:
  *         description: Horario actualizado correctamente
@@ -264,6 +361,23 @@ router.get('/:id/availability', verificarToken, autorizarRoles(['ADMIN', 'RECEPT
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - month
+ *               - year
+ *             properties:
+ *               month:
+ *                 type: integer
+ *                 example: 6
+ *                 description: Mes a generar (1-12)
+ *               year:
+ *                 type: integer
+ *                 example: 2026
  *     responses:
  *       201:
  *         description: Disponibilidad generada correctamente
@@ -289,6 +403,26 @@ router.post('/:id/availability/generate', verificarToken, autorizarRoles(['ADMIN
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - date
+ *               - startTime
+ *               - endTime
+ *             properties:
+ *               date:
+ *                 type: string
+ *                 example: "2026-06-15"
+ *               startTime:
+ *                 type: string
+ *                 example: "09:00"
+ *               endTime:
+ *                 type: string
+ *                 example: "13:00"
  *     responses:
  *       201:
  *         description: Slot creado correctamente
@@ -319,6 +453,20 @@ router.post('/:id/availability', verificarToken, autorizarRoles(['ADMIN', 'PROFE
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               startTime:
+ *                 type: string
+ *                 example: "10:00"
+ *               endTime:
+ *                 type: string
+ *                 example: "14:00"
+ *               active:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Slot actualizado correctamente
@@ -391,6 +539,34 @@ router.get('/:id/exceptions', verificarToken, autorizarRoles(['ADMIN', 'RECEPTIO
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - exceptionDate
+ *               - exceptionType
+ *             properties:
+ *               exceptionDate:
+ *                 type: string
+ *                 example: "2026-07-09"
+ *               startTime:
+ *                 type: string
+ *                 example: "09:00"
+ *                 description: Opcional. Si no se envía se bloquea el día completo
+ *               endTime:
+ *                 type: string
+ *                 example: "13:00"
+ *                 description: Opcional. Si no se envía se bloquea el día completo
+ *               exceptionType:
+ *                 type: string
+ *                 enum: [VACATION, MEETING, PERSONAL, OTHER]
+ *                 example: VACATION
+ *               reason:
+ *                 type: string
+ *                 example: Día feriado nacional
  *     responses:
  *       201:
  *         description: Bloqueo creado correctamente
