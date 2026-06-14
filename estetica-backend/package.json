@@ -6,7 +6,7 @@
   "scripts": {
     "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --forceExit",
     "dev": "nodemon --env-file=.env app.js",
-    "start": "node --env-file=.env app.js"
+    "start": "node app.js"
   },
   "keywords": [],
   "author": "",

@@ -192,31 +192,30 @@ const MiPerfil = () => {
             />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-            <div>
-              <label style={labelStyle}>Nueva contraseña</label>
-              <input
-                type={verPass ? "text" : "password"}
-                name="passwordNueva"
-                style={inputStyle}
-                value={formData.passwordNueva}
-                onChange={handleChange}
-                autoComplete="new-password"
-                required
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Confirmar nueva contraseña</label>
-              <input
-                type={verPass ? "text" : "password"}
-                name="confirmarPassword"
-                style={inputStyle}
-                value={formData.confirmarPassword}
-                onChange={handleChange}
-                autoComplete="new-password"
-                required
-              />
-            </div>
+          <div style={{ marginBottom: 16, maxWidth: 360 }}>
+            <label style={labelStyle}>Nueva contraseña</label>
+            <input
+              type={verPass ? "text" : "password"}
+              name="passwordNueva"
+              style={inputStyle}
+              value={formData.passwordNueva}
+              onChange={handleChange}
+              autoComplete="new-password"
+              required
+            />
+          </div>
+
+          <div style={{ marginBottom: 16, maxWidth: 360 }}>
+            <label style={labelStyle}>Confirmar nueva contraseña</label>
+            <input
+              type={verPass ? "text" : "password"}
+              name="confirmarPassword"
+              style={inputStyle}
+              value={formData.confirmarPassword}
+              onChange={handleChange}
+              autoComplete="new-password"
+              required
+            />
           </div>
 
           <p style={{ fontSize: 12, color: "#94a3b8", margin: "10px 0 0" }}>

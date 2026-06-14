@@ -6,17 +6,9 @@ import { useBanner } from "../../components/ui/Banner";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { TimeInput24 } from "../../components/ui/TimeInput24";
 import { useAuth } from "../../hooks/useAuth";
+import { HorariosRecurrentes } from "../../components/HorariosRecurrentes";
 
 // ─── Constantes de dominio ────────────────────────────────────
-const DIAS_SEMANA = [
-  { value: 0, label: "Domingo"   },
-  { value: 1, label: "Lunes"     },
-  { value: 2, label: "Martes"    },
-  { value: 3, label: "Miércoles" },
-  { value: 4, label: "Jueves"    },
-  { value: 5, label: "Viernes"   },
-  { value: 6, label: "Sábado"    },
-];
 const DIAS_ABREV  = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -79,7 +71,7 @@ const S = {
     width: "100%", padding: "9px 10px", border: "1px solid #ccc", borderRadius: "6px",
     fontSize: "14px", boxSizing: "border-box",
   },
- 
+
   btnCancel: { backgroundColor: "#e2e8f0", color: "#475569" },
   btnDanger: {
     width: "100%", marginTop: "8px", padding: "9px", fontSize: "13px",
@@ -91,7 +83,7 @@ const S = {
   alertWarn:  { backgroundColor: "#fffbeb", border: "1px solid #fbbf24", borderRadius: "8px", padding: "12px 16px", fontSize: "13px", color: "#92400e", marginBottom: "14px" },
   alertError: { backgroundColor: "#fef2f2", border: "1px solid #fca5a5", borderRadius: "8px", padding: "12px 16px", fontSize: "13px", color: "#991b1b", marginBottom: "14px" },
   alertOk:    { backgroundColor: "#f0fdf4", border: "1px solid #86efac", borderRadius: "8px", padding: "12px 16px", fontSize: "13px", color: "#14532d", marginBottom: "14px" },
-  
+
   inlinePanel: {
     marginBottom: "16px",
     padding: "16px",
@@ -109,17 +101,10 @@ const S = {
   },
   inlinePanelTitle: { color: "#6b21a8", fontSize: "13px", fontWeight: "700" },
   fieldRow: { display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "12px" },
-  fieldCol: { flex: "1 1 130px", minWidth: "130px" }, 
-  editShadow: "0 6px 18px rgba(124,58,237,0.28)", 
-  editGroup: {
-    border: "2px solid #7c3aed",
-    borderLeft: "5px solid #7c3aed",
-    borderRadius: "8px",
-    boxShadow: "0 6px 18px rgba(124,58,237,0.28)",
-    overflow: "hidden",
-  },
+  fieldCol: { flex: "1 1 130px", minWidth: "130px" },
+  editShadow: "0 6px 18px rgba(124,58,237,0.28)",
 };
- 
+
 const BadgeSlot = ({ conTurnos }) => (
   <span style={{
     display: "inline-block", padding: "2px 10px", borderRadius: "12px",
@@ -135,7 +120,7 @@ const BadgeSlot = ({ conTurnos }) => (
 const AperturaAgenda = () => {
   const { token, user } = useAuth();
   const API = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
- 
+
   const esProfesional = user?.role === "PROFESSIONAL";
   const miProfId = user?.professionalId || "";
 
@@ -147,33 +132,25 @@ const AperturaAgenda = () => {
   const [profesionales, setProfesionales] = useState([]);
   const banner = useBanner();
   const profNombre = () => profesionales.find((p) => p.id === profSelId)?.person?.name || "—";
-  const [horarios, setHorarios] = useState([]);
   const [slots, setSlots] = useState([]);
+  const [horariosCount, setHorariosCount] = useState(0);
 
   const [cargandoProf, setCargandoProf] = useState(true);
-  const [cargandoHorarios, setCargandoHorarios] = useState(false);
   const [cargandoSlots, setCargandoSlots] = useState(false);
   const [accionando, setAccionando] = useState(false);
 
-  const [mensajeOk, setMensajeOk] = useState("");
   const [errorGlobal, setErrorGlobal] = useState("");
- 
-  const [panelHorario, setPanelHorario] = useState(false);
+
   const [panelSlot, setPanelSlot] = useState(false);
   const [modalRevertir, setModalRevertir] = useState(false);
-  const [horarioAEliminar, setHorarioAEliminar] = useState(null);  
-  const [slotAEliminar, setSlotAEliminar] = useState(null);      
-  const [slotAArchivar, setSlotAArchivar] = useState(null);       
- 
-  const formHorarioVacio = { dayOfWeek: 1, startTime: "09:00", endTime: "17:00" };
-  const formSlotVacio    = { date: "", startTime: "09:00", endTime: "17:00" };
-  const [formHorario, setFormHorario] = useState(formHorarioVacio);
+  const [slotAEliminar, setSlotAEliminar] = useState(null);
+  const [slotAArchivar, setSlotAArchivar] = useState(null);
+
+  const formSlotVacio = { date: "", startTime: "09:00", endTime: "17:00" };
   const [formSlot, setFormSlot] = useState(formSlotVacio);
   const [errorForm, setErrorForm] = useState("");
-  const [horarioEditandoId, setHorarioEditandoId] = useState(null);
   const [slotEditandoId, setSlotEditandoId] = useState(null);
- 
-  const mostrarOk    = (msg) => banner.success(String(msg).replace(/^✓\s*/, ""));
+
   const mostrarError = (msg) => banner.error(msg);
 
   const headers = useCallback((extra = {}) => ({
@@ -181,38 +158,15 @@ const AperturaAgenda = () => {
     "Content-Type": "application/json",
     ...extra,
   }), [token]);
- 
+
   const cerrarPaneles = () => {
-    setPanelHorario(false);
-    setPanelSlot(false);
-    setHorarioEditandoId(null);
-    setSlotEditandoId(null);
-    setErrorForm("");
-  };
-
-  const abrirNuevoHorario = () => {
-    if (panelHorario && !horarioEditandoId) { cerrarPaneles(); return; }
     setPanelSlot(false);
     setSlotEditandoId(null);
-    setHorarioEditandoId(null);
-    setFormHorario(formHorarioVacio);
     setErrorForm("");
-    setPanelHorario(true);
-  };
-
-  const abrirEditarHorario = (h) => {
-    setPanelSlot(false);
-    setSlotEditandoId(null);
-    setHorarioEditandoId(h.id);
-    setFormHorario({ dayOfWeek: h.dayOfWeek, startTime: formatHora(h.startTime), endTime: formatHora(h.endTime) });
-    setErrorForm("");
-    setPanelHorario(true);
   };
 
   const abrirNuevoSlot = () => {
     if (panelSlot && !slotEditandoId) { cerrarPaneles(); return; }
-    setPanelHorario(false);
-    setHorarioEditandoId(null);
     setSlotEditandoId(null);
     setFormSlot(formSlotVacio);
     setErrorForm("");
@@ -220,14 +174,12 @@ const AperturaAgenda = () => {
   };
 
   const abrirEditarSlot = (s) => {
-    setPanelHorario(false);
-    setHorarioEditandoId(null);
     setSlotEditandoId(s.id);
     setFormSlot({ date: extraerFecha(s.date), startTime: formatHora(s.startTime), endTime: formatHora(s.endTime) });
     setErrorForm("");
     setPanelSlot(true);
   };
- 
+
   useEffect(() => {
     if (!token) return;
 
@@ -254,24 +206,7 @@ const AperturaAgenda = () => {
     };
     fetchProfs();
   }, [token, esProfesional, miProfId]);
- 
-  const cargarHorarios = useCallback(async (profId) => {
-    if (!profId) return;
-    setCargandoHorarios(true);
-    try {
-      const res = await fetch(`${API}/professionals/${profId}/schedule`, { headers: headers() });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al cargar horarios");
-      const lista = Array.isArray(data) ? data : [];
-      setHorarios([...lista].sort((a, b) => a.dayOfWeek - b.dayOfWeek));
-    } catch (err) {
-      mostrarError(err.message);
-      setHorarios([]);
-    } finally {
-      setCargandoHorarios(false);
-    }
-  }, [API, headers]);
- 
+
   const cargarDisponibilidad = useCallback(async (profId, y, m) => {
     if (!profId) return;
     setCargandoSlots(true);
@@ -290,93 +225,16 @@ const AperturaAgenda = () => {
 
   useEffect(() => {
     if (profSelId) {
-      cargarHorarios(profSelId);
       cargarDisponibilidad(profSelId, anio, mes);
     } else {
-      setHorarios([]);
       setSlots([]);
     }
 
     cerrarPaneles();
   }, [profSelId, anio, mes]);
 
-  const handleGuardarHorario = async () => {
-    setErrorForm("");
-    if (formHorario.startTime >= formHorario.endTime) {
-      setErrorForm("El horario de inicio debe ser anterior al de fin.");
-      return;
-    }
-
- 
-    const mismoDia = horarios.filter(
-      (h) => h.dayOfWeek === Number(formHorario.dayOfWeek) && h.id !== horarioEditandoId,
-    );
-    const seSuperpone = mismoDia.some((h) => {
-      const hIni = formatHora(h.startTime);
-      const hFin = formatHora(h.endTime);
-      return formHorario.startTime < hFin && formHorario.endTime > hIni;
-    });
-    if (seSuperpone) {
-      const diaLabel = DIAS_SEMANA.find((d) => d.value === Number(formHorario.dayOfWeek))?.label;
-      setErrorForm(`Ese rango se superpone con otro horario ya cargado para el ${diaLabel}. Revisá los horarios de ese día.`);
-      return;
-    }
-
-    const esEdicion = !!horarioEditandoId;
-    setAccionando(true);
-    try {
-      const url = esEdicion
-        ? `${API}/professionals/${profSelId}/schedule/${horarioEditandoId}`
-        : `${API}/professionals/${profSelId}/schedule`;
-      const res = await fetch(url, {
-        method: esEdicion ? "PATCH" : "POST",
-        headers: headers(),
-        body: JSON.stringify({
-          dayOfWeek: Number(formHorario.dayOfWeek),
-          startTime: formHorario.startTime,
-          endTime: formHorario.endTime,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.mensaje || data.error || "Error al guardar horario");
-      const diaLabel = DIAS_SEMANA.find((d) => d.value === Number(formHorario.dayOfWeek))?.label;
-      setPanelHorario(false);
-      setHorarioEditandoId(null);
-      setFormHorario(formHorarioVacio);
-      await cargarHorarios(profSelId);
-      mostrarOk(esEdicion ? `✓ Horario del ${diaLabel} actualizado.` : `✓ Horario del ${diaLabel} agregado correctamente.`);
-    } catch (err) {
-      setErrorForm(err.message);
-    } finally {
-      setAccionando(false);
-    }
-  };
- 
-  const ejecutarEliminarHorario = async () => {
-    if (!horarioAEliminar) return;
-    setAccionando(true);
-    try {
-      const res = await fetch(`${API}/professionals/${profSelId}/schedule/${horarioAEliminar.id}`, {
-        method: "DELETE",
-        headers: headers(),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.mensaje || data.error || "Error al eliminar horario");
-      }
-      setHorarioAEliminar(null);
-      await cargarHorarios(profSelId);
-      mostrarOk("✓ Horario recurrente eliminado.");
-    } catch (err) {
-      setHorarioAEliminar(null);
-      mostrarError(err.message);
-    } finally {
-      setAccionando(false);
-    }
-  };
- 
   const handleGenerarDisponibilidad = async () => {
-    if (horarios.length === 0) {
+    if (horariosCount === 0) {
       mostrarError("Este profesional no tiene horarios recurrentes configurados. Agregá al menos uno antes de generar la agenda.");
       return;
     }
@@ -404,7 +262,7 @@ const AperturaAgenda = () => {
       setAccionando(false);
     }
   };
- 
+
   const handleRevertirDisponibilidad = async () => {
     setModalRevertir(false);
     setAccionando(true);
@@ -432,7 +290,7 @@ const AperturaAgenda = () => {
       setAccionando(false);
     }
   };
- 
+
   const handleArchivarMes = async () => {
     setModalRevertir(false);
     setAccionando(true);
@@ -460,7 +318,7 @@ const AperturaAgenda = () => {
       setAccionando(false);
     }
   };
- 
+
   const handleGuardarSlot = async () => {
     setErrorForm("");
     if (!formSlot.date) { setErrorForm("Seleccioná una fecha."); return; }
@@ -523,7 +381,7 @@ const AperturaAgenda = () => {
       setAccionando(false);
     }
   };
- 
+
   const ejecutarEliminarSlot = async () => {
     if (!slotAEliminar) return;
     setAccionando(true);
@@ -553,7 +411,7 @@ const AperturaAgenda = () => {
       setAccionando(false);
     }
   };
- 
+
   const ejecutarArchivarSlot = async () => {
     if (!slotAArchivar) return;
     setAccionando(true);
@@ -583,62 +441,16 @@ const AperturaAgenda = () => {
       setAccionando(false);
     }
   };
- 
+
   const profSeleccionado = profesionales.find((p) => p.id === profSelId);
   const slotsConTurnos = slots.filter((s) => contarTurnos(s) > 0).length;
   const nombresDelMes = `${MESES[mes - 1]} ${anio}`;
 
   const getNombreProf = (p) => p?.person?.name ?? p?.name ?? p?.nombre ?? "Sin nombre";
   const getEmailProf  = (p) => p?.person?.email ?? p?.email ?? "";
- 
+
   const minFecha = `${anio}-${String(mes).padStart(2, "0")}-01`;
   const maxFecha = `${anio}-${String(mes).padStart(2, "0")}-${String(new Date(anio, mes, 0).getDate()).padStart(2, "0")}`;
- 
-  const renderPanelHorario = (wrap = {}) => (
-    <div style={{ ...S.inlinePanel, ...wrap }}>
-      <div style={S.inlinePanelHeader}>
-        <span style={S.inlinePanelTitle}>
-          {horarioEditandoId ? "Editar horario recurrente" : "Nuevo horario recurrente"}
-        </span>
-      </div>
-      <p style={{ color: "#64748b", fontSize: "12px", marginTop: 0, marginBottom: "12px" }}>
-        Se repetirá cada semana y se usará al generar la agenda mensual.
-      </p>
-
-      <div style={{ marginBottom: "12px" }}>
-        <label style={S.label}>Día de la semana</label>
-        <select
-          style={S.select}
-          value={formHorario.dayOfWeek}
-          onChange={(e) => setFormHorario((f) => ({ ...f, dayOfWeek: Number(e.target.value) }))}
-        >
-          {DIAS_SEMANA.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
-        </select>
-      </div>
-
-      <div style={S.fieldRow}>
-        <div style={S.fieldCol}>
-          <label style={S.label}>Hora inicio</label>
-          <TimeInput24 value={formHorario.startTime}
-            onChange={(v) => setFormHorario((f) => ({ ...f, startTime: v }))} />
-        </div>
-        <div style={S.fieldCol}>
-          <label style={S.label}>Hora fin</label>
-          <TimeInput24 value={formHorario.endTime}
-            onChange={(v) => setFormHorario((f) => ({ ...f, endTime: v }))} />
-        </div>
-      </div>
-
-      {errorForm && <div style={{ ...S.alertError, marginBottom: "10px" }}>{errorForm}</div>}
-
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-        <Button type="button" style={S.btnCancel} onClick={cerrarPaneles}>Cancelar</Button>
-        <Button onClick={handleGuardarHorario} disabled={accionando}>
-          {accionando ? "Guardando..." : horarioEditandoId ? "Guardar cambios" : "Guardar horario"}
-        </Button>
-      </div>
-    </div>
-  );
 
   const renderPanelSlot = (wrap = {}) => (
     <div style={{ ...S.inlinePanel, ...wrap }}>
@@ -688,29 +500,26 @@ const AperturaAgenda = () => {
       </div>
     </div>
   );
- 
+
   return (
     <div>
- 
+
       <style>{`
         @keyframes senda-slide-down {
           from { opacity: 0; transform: translateY(-6px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        /* Sombra al pasar el cursor por encima (referencia visual del estado en edición) */
-        .senda-recur-item { transition: box-shadow .15s ease; }
-        .senda-recur-item:hover { box-shadow: 0 4px 14px rgba(107,33,168,0.18); }
         .senda-slot-table tbody tr:hover > td { background-color: #faf5ff; }
         /* La fila en edición no muestra la línea divisoria: se funde con su form */
         .senda-slot-table tr.senda-edit-row > td { border-bottom: none; }
         .senda-slot-table tr.senda-edit-row:hover > td { background-color: transparent; }
       `}</style>
- 
+
       <PageHeader
-        title="Agendas"
+        title="Agendas por Profesional"
         subtitle="Configurá los horarios recurrentes del profesional y generá la disponibilidad mensual."
       />
- 
+
       <div style={{ ...S.card, marginBottom: "24px" }}>
         <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", alignItems: "flex-end" }}>
           <div style={{ flex: "2", minWidth: "220px" }}>
@@ -767,88 +576,22 @@ const AperturaAgenda = () => {
 
           {/* ── Columna izquierda: horarios recurrentes ── */}
           <div style={S.card}>
-            <div style={S.sectionHeader}>
-              <h3 style={S.sectionTitle}>Horarios Recurrentes</h3>
-              <Button
-                onClick={abrirNuevoHorario}
-                disabled={accionando}
-                style={{ fontSize: "12px", padding: "6px 12px" }}
-              >
-                {panelHorario && !horarioEditandoId ? "× Cerrar" : "+ Agregar"}
-              </Button>
-            </div>
- 
-            {panelHorario && !horarioEditandoId && renderPanelHorario()}
-
-            {cargandoHorarios ? (
-              <p style={{ color: "#94a3b8", textAlign: "center", padding: "24px 0" }}>Cargando horarios...</p>
-            ) : horarios.length === 0 ? (
-              <div style={S.alertWarn}>
-                <strong>Sin horarios recurrentes.</strong><br />
-                <small>Agregá al menos un horario para poder generar la agenda mensual.</small>
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                {horarios.map((h) => {
-                  const diaLabel = DIAS_SEMANA.find((d) => d.value === h.dayOfWeek)?.label ?? `Día ${h.dayOfWeek}`;
-                  const enEdicion = panelHorario && horarioEditandoId === h.id;
-                  return (
-                    <Fragment key={h.id}>
-                      <div
-                        className={!enEdicion ? "senda-recur-item" : undefined}
-                        style={enEdicion ? S.editGroup : undefined}
-                      >
-                      <div style={{
-                        display: "flex", alignItems: "center", justifyContent: "space-between",
-                        padding: "10px 12px",
-                        backgroundColor: enEdicion ? "#ede9fe" : "#f8f4ff",
-                        borderRadius: enEdicion ? 0 : "8px",
-                        border: enEdicion ? "none" : "1px solid #e9d5ff",
-                      }}>
-                        <div>
-                          <span style={{ fontWeight: "700", color: "#5b21b6", fontSize: "13px" }}>{diaLabel}</span>
-                          <span style={{ fontSize: "13px", color: enEdicion ? "#4c1d95" : "#475569", marginLeft: "12px" }}>
-                            {formatHora(h.startTime)} → {formatHora(h.endTime)}
-                          </span>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
-                          <button
-                            onClick={() => abrirEditarHorario(h)}
-                            disabled={accionando}
-                            title="Editar este horario recurrente"
-                            style={{ ...S.btnIconDelete, color: accionando ? "#cbd5e1" : "#6b21a8" }}
-                          >
-                            ✎
-                          </button>
-                          <button
-                            onClick={() => setHorarioAEliminar({ id: h.id, label: diaLabel })}
-                            disabled={accionando}
-                            title="Eliminar este horario recurrente"
-                            style={{ ...S.btnIconDelete, color: accionando ? "#cbd5e1" : "#d32f2f" }}
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      </div>
- 
-                      {enEdicion && renderPanelHorario({ marginBottom: 0, marginTop: 0, border: "none", borderRadius: 0 })}
-                      </div>
-                    </Fragment>
-                  );
-                })}
-              </div>
-            )}
+            <HorariosRecurrentes
+              professionalId={profSelId}
+              token={token}
+              onCountChange={setHorariosCount}
+            />
 
             <div style={{ marginTop: "20px", paddingTop: "16px", borderTop: "1px solid #e2e8f0" }}>
               <Button
                 onClick={handleGenerarDisponibilidad}
-                disabled={accionando || horarios.length === 0}
+                disabled={accionando || horariosCount === 0}
                 style={{ width: "100%", padding: "11px", fontSize: "14px" }}
               >
                 {accionando ? "Procesando..." : `▶ Generar agenda — ${nombresDelMes}`}
               </Button>
 
-              {horarios.length === 0 && (
+              {horariosCount === 0 && (
                 <p style={{ fontSize: "11px", color: "#94a3b8", textAlign: "center", marginTop: "6px", marginBottom: 0 }}>
                   Necesitás al menos un horario recurrente.
                 </p>
@@ -866,7 +609,7 @@ const AperturaAgenda = () => {
               )}
             </div>
           </div>
- 
+
           <div>
             <div style={S.sectionHeader}>
               <h3 style={S.sectionTitle}>Agenda Generada — {nombresDelMes}</h3>
@@ -886,7 +629,7 @@ const AperturaAgenda = () => {
                 </Button>
               </div>
             </div>
- 
+
             {panelSlot && !slotEditandoId && renderPanelSlot()}
 
             {cargandoSlots ? (
@@ -959,7 +702,7 @@ const AperturaAgenda = () => {
                             >
                               ✎
                             </button>
- 
+
                             {conTurnos && (
                               <button
                                 onClick={() => setSlotAArchivar(s)}
@@ -991,7 +734,7 @@ const AperturaAgenda = () => {
                           </div>
                         </Td>
                       </Tr>
- 
+
                       {enEdicion && (
                         <tr>
                           <td colSpan={7} style={{
@@ -1014,17 +757,7 @@ const AperturaAgenda = () => {
           </div>
         </div>
       )}
- 
-      <Modal isOpen={!!horarioAEliminar} onClose={() => setHorarioAEliminar(null)} title="Confirmar">
-        <p>¿Eliminar el horario recurrente del <strong>{horarioAEliminar?.label}</strong>?</p>
-        <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "20px" }}>
-          <Button type="button" style={S.btnCancel} onClick={() => setHorarioAEliminar(null)}>Cancelar</Button>
-          <Button variant="danger" onClick={ejecutarEliminarHorario} disabled={accionando}>
-            {accionando ? "Eliminando..." : "Sí, eliminar"}
-          </Button>
-        </div>
-      </Modal>
- 
+
       <Modal isOpen={!!slotAEliminar} onClose={() => setSlotAEliminar(null)} title="Confirmar">
         <p>¿Eliminar el slot del <strong>{slotAEliminar ? formatFecha(slotAEliminar.date) : ""}</strong> ({slotAEliminar ? `${formatHora(slotAEliminar.startTime)}–${formatHora(slotAEliminar.endTime)}` : ""})?</p>
         <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "20px" }}>
@@ -1034,7 +767,7 @@ const AperturaAgenda = () => {
           </Button>
         </div>
       </Modal>
- 
+
       <Modal isOpen={!!slotAArchivar} onClose={() => setSlotAArchivar(null)} title="Archivar slot">
         <p style={{ marginTop: 0 }}>
           ¿Archivar el slot del <strong>{slotAArchivar ? formatFecha(slotAArchivar.date) : ""}</strong>
@@ -1050,7 +783,7 @@ const AperturaAgenda = () => {
           </Button>
         </div>
       </Modal>
- 
+
       <Modal isOpen={modalRevertir} onClose={() => setModalRevertir(false)} title="Revertir Apertura de Agenda">
         <div style={S.alertWarn}>
           <strong>Esta acción eliminará todos los slots libres (sin turnos)</strong> de {nombresDelMes}

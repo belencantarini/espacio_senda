@@ -5,6 +5,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { PacienteFormModal } from "../../components/PacienteFormModal";
 import { useBanner } from "../../components/ui/Banner";
 import { PageHeader } from "../../components/ui/PageHeader";
+import { fmtHora, fmtFechaLargaISO, ymdDeInstante, instanteParaApi, LECTURA_TZ } from "../../utils/fecha";
  
 const pacienteLabel = (p) => {
   if (!p) return "";
@@ -23,9 +24,8 @@ const MUTED = "#94a3b8";
 const MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
 const fmtPrecio = (n) => "$" + Number(n || 0).toLocaleString("es-AR"); 
-const fmtHora = (iso) => new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
-const fmtFechaCorta = (iso) => new Date(iso).toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
-const fmtFechaLarga = (iso) => new Date(iso).toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+const fmtFechaCorta = (iso) => new Date(iso).toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short", timeZone: LECTURA_TZ });
+const fmtFechaLarga = fmtFechaLargaISO;
  
 function avisosDeServicio(service) {
   if (!service) return [];
@@ -244,7 +244,7 @@ export default function ReservaTurno({ onCreated, embedded = false }) {
   }, [diaSel]);
  
   useEffect(() => {
-    if (pacQuery.trim().length < 2) { setPacientes([]); setPacBuscado(false); return; }
+    if (pacQuery.trim().length < 1) { setPacientes([]); setPacBuscado(false); return; }
     setPacBuscado(false);
     const t = setTimeout(async () => {
       try {
@@ -267,8 +267,8 @@ export default function ReservaTurno({ onCreated, embedded = false }) {
   const elegirOpcion = (op) => {
     setOpcionSel(op);
     if (op.nextSlot && !sobreturno) {
-      const d = new Date(op.nextSlot.startsAt);
-      setVerMes({ year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 });
+      const [y, m] = ymdDeInstante(op.nextSlot.startsAt).split("-").map(Number);
+      setVerMes({ year: y, month: m });
     }
   };
 
@@ -296,7 +296,7 @@ export default function ReservaTurno({ onCreated, embedded = false }) {
       let res;
 
       if (sobreturno) {
-        startsAtISO = `${stFecha}T${stHora}:00.000Z`;
+        startsAtISO = instanteParaApi(stFecha, stHora);
         const payload = { patientId: pacSel, startsAt: startsAtISO, ...(notas ? { notes: notas } : {}) };
         if (contexto.professionalServiceIds.length > 1) payload.professionalServiceIds = contexto.professionalServiceIds;
         else payload.professionalServiceId = contexto.professionalServiceIds[0];
@@ -368,7 +368,7 @@ export default function ReservaTurno({ onCreated, embedded = false }) {
   if (!pacSel) faltantes.push("seleccionar un paciente");
  
   const stFin = (sobreturno && stFecha && stHora && contexto)
-    ? fmtHora(new Date(new Date(`${stFecha}T${stHora}:00.000Z`).getTime() + contexto.duration * 60000).toISOString())
+    ? fmtHora(new Date(new Date(instanteParaApi(stFecha, stHora)).getTime() + contexto.duration * 60000).toISOString())
     : "";
 
   const tabBtn = (activo) => ({

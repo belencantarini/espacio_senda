@@ -7,7 +7,7 @@ export const ROLES = {
 
 
 export const PERMISOS = {
-  dashboard:            [ROLES.ADMIN, ROLES.PROFESSIONAL],
+  dashboard:            [ROLES.ADMIN],
   usuarios:             [ROLES.ADMIN],
   reportes:             [ROLES.ADMIN],
   servicios:            [ROLES.ADMIN],
