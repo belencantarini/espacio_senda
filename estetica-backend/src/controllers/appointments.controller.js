@@ -1,29 +1,22 @@
 import prisma from '../config/prisma.js';
 import { verificarProfesional, professionalIdDelUsuario, SIN_COINCIDENCIAS } from '../middleware/checkProfessional.js';
 import { sincronizarTurnoAsync } from '../services/appointmentSync.service.js';
+import { instanteDesdeParedLocal, minutoDelDiaEnZona } from '../utils/tiempo.js';
 
 
-const CLINIC_TZ = 'America/Argentina/Buenos_Aires';
 const toMinutes = (d) => d.getUTCHours() * 60 + d.getUTCMinutes();
 const fmtDate = (d) => new Date(d).toISOString().slice(0, 10);
 const ESTADOS_OCUPAN = ['PENDING', 'CONFIRMED', 'IN_PROGRESS'];
 
-const ahoraPared = () => {
-  const partes = new Intl.DateTimeFormat('en-CA', {
-    timeZone: CLINIC_TZ, hour12: false,
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-  }).formatToParts(new Date()).reduce((o, p) => (o[p.type] = p.value, o), {});
-  return new Date(`${partes.year}-${partes.month}-${partes.day}T${partes.hour}:${partes.minute}:${partes.second}Z`);
-};
+const ahoraInstante = () => new Date();
 
 function calcularSlots(availability, turnosOcupados, duracionMin, dateStr, ahora) {
   const availabilityStart = toMinutes(availability.startTime);
   const availabilityEnd = toMinutes(availability.endTime);
  
   const bloques = turnosOcupados.map((t) => ({
-    inicio: toMinutes(t.startsAt),
-    fin: toMinutes(t.endsAt),
+    inicio: minutoDelDiaEnZona(t.startsAt),
+    fin: minutoDelDiaEnZona(t.endsAt),
   }));
 
   
@@ -37,7 +30,7 @@ function calcularSlots(availability, turnosOcupados, duracionMin, dateStr, ahora
     } else {
       const hh = Math.floor(cursor / 60).toString().padStart(2, '0');
       const mm = (cursor % 60).toString().padStart(2, '0');
-      const slotDate = new Date(`${dateStr}T${hh}:${mm}:00Z`);
+      const slotDate = instanteDesdeParedLocal(dateStr, `${hh}:${mm}`);
       if (slotDate > ahora) {
         slots.push({
           startsAt: slotDate,
@@ -84,7 +77,7 @@ async function primerTurnoDisponible(professionalId, duracionMin, fromStr, windo
   const porAvail = {};
   for (const a of appts) (porAvail[a.availabilityId] ||= []).push(a);
  
-  const ahora = ahoraPared();
+  const ahora = ahoraInstante();
   for (const av of avs) {
     const slots = calcularSlots(av, porAvail[av.id] || [], duracionMin, fmtDate(av.date), ahora);
     if (slots.length) return slots[0];
@@ -126,7 +119,7 @@ export const obtenerHorariosDisponibles = async (req, res) => {
       orderBy: { startsAt: 'asc' },
     });
  
-    const slots = calcularSlots(availability, turnosOcupados, duracionTotal, date, ahoraPared());
+    const slots = calcularSlots(availability, turnosOcupados, duracionTotal, date, ahoraInstante());
  
     res.json({
       date,
@@ -179,7 +172,7 @@ export const obtenerDiasDisponibles = async (req, res) => {
     const porAvail = {};
     for (const a of appts) (porAvail[a.availabilityId] ||= []).push(a);
  
-    const ahora = ahoraPared();
+    const ahora = ahoraInstante();
     const dias = new Set();
     for (const av of avs) {
       const fecha = fmtDate(av.date);
@@ -311,6 +304,7 @@ export const obtenerTurnoPorId = async (req, res) => {
         availability: true,
         payments: true,
         audits: true,
+        reminders: true,
       },
     });
  

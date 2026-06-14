@@ -145,6 +145,8 @@ const UsuariosAdmin = () => {
           email: data.persona.email || f.email,
           specialty: data.persona.specialty || f.specialty,
           bio: data.persona.bio || f.bio,
+          // Si la persona ya tiene ficha de profesional, sugerimos el rol Profesional
+          rol: data.esProfesional ? "PROFESSIONAL" : f.rol,
         }));
       }
     } catch (err) {

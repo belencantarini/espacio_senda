@@ -9,17 +9,7 @@ const ESTADO_LABEL = {
   NO_SHOW: 'No asistió',
 };
 
-const pad = (n) => String(n).padStart(2, '0');
-
-
-const aHoraLocal = (d) => {
-  const x = new Date(d);
-  return (
-    `${x.getUTCFullYear()}-${pad(x.getUTCMonth() + 1)}-${pad(x.getUTCDate())}` +
-    `T${pad(x.getUTCHours())}:${pad(x.getUTCMinutes())}:${pad(x.getUTCSeconds())}`
-  );
-};
-
+const horaSinZona = (d) => new Date(d).toISOString().slice(0, 19);
 
 export const construirEvento = (turno) => {
   const paciente = turno.patient?.person?.name || 'Paciente';
@@ -47,8 +37,8 @@ export const construirEvento = (turno) => {
     description: descripcion,
    
     
-    start: { dateTime: aHoraLocal(turno.startsAt), timeZone: CALENDAR_TZ },
-    end: { dateTime: aHoraLocal(turno.endsAt), timeZone: CALENDAR_TZ },
+    start: { dateTime: horaSinZona(turno.startsAt).toISOString(), timeZone: CALENDAR_TZ },
+    end: { dateTime: horaSinZona(turno.endsAt).toISOString(), timeZone: CALENDAR_TZ },
     
     
     extendedProperties: {

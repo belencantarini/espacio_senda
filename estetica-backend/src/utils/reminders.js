@@ -3,29 +3,19 @@ import prisma from '../config/prisma.js';
 import transporter from '../config/mailer.js';
 import { INSTITUCION } from '../constants/institucion.js';
 import { linkWhatsApp } from './whatsapp.js';
+import { CLINIC_TZ } from './tiempo.js';
 
-const TZ = 'America/Argentina/Buenos_Aires';
-
-const ahoraPared = () => {
-  const p = new Intl.DateTimeFormat('en-CA', {
-    timeZone: TZ,
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
-  })
-    .formatToParts(new Date())
-    .reduce((o, x) => ((o[x.type] = x.value), o), {});
-  return new Date(`${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}Z`);
-};
+const TZ = CLINIC_TZ;
 
 
 const fmtFecha = (d) =>
   new Intl.DateTimeFormat('es-AR', {
-    timeZone: 'UTC', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   }).format(new Date(d));
 
 const fmtHora = (d) =>
   new Intl.DateTimeFormat('es-AR', {
-    timeZone: 'UTC', hour: '2-digit', minute: '2-digit', hour12: false,
+    timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false,
   }).format(new Date(d)) + ' hs';
 
 const datosTurno = (turno) => ({
@@ -196,8 +186,7 @@ export const procesarRecordatorios = async () => {
   console.log('🔔 Procesando recordatorios...');
   try {
     const horasAntes = Number(process.env.RECORDATORIO_HORAS_ANTES || 24);
-    // Ventana pared-contra-pared: misma convención que startsAt (evita el -3h).
-    const ahora = ahoraPared();
+    const ahora = new Date();
     const hasta = new Date(ahora.getTime() + horasAntes * 60 * 60 * 1000);
 
     const turnos = await prisma.appointment.findMany({
