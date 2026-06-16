@@ -4,7 +4,7 @@ import prisma from '../config/prisma.js';
 
 export const obtenerCategorias = async (req, res) => {
   try {
-    console.log("🚀 LLEGÓ LA PETICIÓN A OBTENER CATEGORIAS");
+    console.log("LLEGÓ LA PETICIÓN A OBTENER CATEGORIAS");
     const categorias = await prisma.serviceCategory.findMany({
       orderBy: { displayOrder: "asc" },
       include: {
@@ -87,7 +87,7 @@ export const actualizarCategoria = async (req, res) => {
 
 export const obtenerServicios = async (req, res) => {
   try {
-    console.log("🚀 LLEGÓ LA PETICIÓN A OBTENER SERVICIOS");
+    console.log("LLEGÓ LA PETICIÓN A OBTENER SERVICIOS");
     const { active } = req.query;
 
     const servicios = await prisma.service.findMany({
