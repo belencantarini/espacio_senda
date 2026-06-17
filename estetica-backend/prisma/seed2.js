@@ -5,12 +5,17 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 /* ════════════════════════════════════════════════════════════════
- *  CONFIG GENERAL
- *  - Mismo manejo de horas/fechas que los controllers:
- *    · startTime/endTime  -> Date('1970-01-01T HH:MM :00Z')  (hora en UTC, fecha epoch)
- *    · availability.date  -> Date('YYYY-MM-DD T00:00:00Z')   (medianoche UTC)
- *    · appointment starts -> Date('YYYY-MM-DD T HH:MM :00Z') (UTC)
- *  Todo se construye en UTC para que coincida con calcularSlots() (getUTCHours).
+ *  CONFIG GENERAL · CONVENCIÓN DE TIEMPO (única, coherente con la app)
+ *  - recurringSchedule / availability startTime,endTime -> @db.Time
+ *      timeUTC('HH:MM') = hora de PARED de la clínica como time-of-day.
+ *      El controller la lee con getUTCHours() (toMinutes), así que se
+ *      guarda tal cual (09:00 = 09:00 de pared). NO se convierte.
+ *  - availability.date -> @db.Date  (medianoche UTC del día).
+ *  - appointment.startsAt / endsAt -> INSTANTE UTC REAL.
+ *      Se construye con instanteBA(), idéntico a instanteDesdeParedLocal()
+ *      del backend: pared BA -> UTC (ej. 09:00 BA = 12:00Z en horario AR).
+ *      Así calcularSlots() (que usa minutoDelDiaEnZona) ubica los turnos
+ *      en la franja correcta y la UI los muestra en hora local.
  * ════════════════════════════════════════════════════════════════ */
 const YEAR = 2026;
 const MONTH = 6; // Junio
@@ -19,8 +24,33 @@ const NOW = new Date(); // referencia para decidir pasado/futuro (hoy ≈ 11/06/
 // Helpers de tiempo/fecha
 const timeUTC = (hhmm) => new Date(`1970-01-01T${hhmm}:00Z`);
 const dateUTC = (ymd) => new Date(`${ymd}T00:00:00Z`);
-const dtUTC = (ymd, hhmm) => new Date(`${ymd}T${hhmm}:00Z`);
 const addMin = (date, min) => new Date(date.getTime() + min * 60000);
+
+// ── Pared local (BA) -> instante UTC real ─────────────────────────
+// Réplica exacta de instanteDesdeParedLocal() de src/utils/tiempo.js.
+const CLINIC_TZ = process.env.GOOGLE_CALENDAR_TZ || 'America/Argentina/Buenos_Aires';
+const _partesEnZona = (ms) =>
+  new Intl.DateTimeFormat('en-US', {
+    timeZone: CLINIC_TZ, hourCycle: 'h23',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  })
+    .formatToParts(new Date(ms))
+    .reduce((o, p) => ((o[p.type] = p.value), o), {});
+const _offsetMs = (ms) => {
+  const p = _partesEnZona(ms);
+  return Date.UTC(+p.year, p.month - 1, +p.day, +p.hour, +p.minute, +p.second) - ms;
+};
+const instanteBA = (ymd, hhmm) => {
+  const [y, mo, d] = ymd.split('-').map(Number);
+  const [h, mi] = hhmm.split(':').map(Number);
+  const guess = Date.UTC(y, mo - 1, d, h, mi, 0);
+  const off1 = _offsetMs(guess);
+  let ms = guess - off1;
+  const off2 = _offsetMs(ms);
+  if (off2 !== off1) ms = guess - off2;
+  return new Date(ms);
+};
 const money = (n) => Number(n).toFixed(2);
 const toMin = (hhmm) => {
   const [h, m] = hhmm.split(':').map(Number);
@@ -336,7 +366,7 @@ async function main() {
       if (cursor + svc.dur > windowEnd) break;
 
       const startHHMM = fromMin(cursor);
-      const startsAt = dtUTC(av.ymd, startHHMM);
+      const startsAt = instanteBA(av.ymd, startHHMM); // instante UTC real (pared BA -> UTC)
       const endsAt = addMin(startsAt, svc.dur);
       const esPasado = endsAt < NOW;
       const paciente = pacientes[apptSeq % pacientes.length];

@@ -4,6 +4,7 @@ import { Modal } from "../../components/ui/Modal";
 import { useAuth } from "../../hooks/useAuth";
 import { useBanner } from "../../components/ui/Banner";
 import { PageHeader } from "../../components/ui/PageHeader";
+import { LECTURA_TZ, ymdDeInstante } from "../../utils/fecha";
 
 const PURPLE = "#6b21a8";
 const PURPLE_BG = "#f3e8ff";
@@ -16,9 +17,9 @@ const PAGO_LBL = { PENDING: "Pendiente", PARTIAL: "Parcial", COMPLETED: "Pagado"
 
 const MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
-const fmtHora = (iso) => new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
-const fmtFecha = (iso) => new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
-const fmtFechaLarga = (iso) => new Date(iso).toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+const fmtHora = (iso) => new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: LECTURA_TZ });
+const fmtFecha = (iso) => new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: LECTURA_TZ });
+const fmtFechaLarga = (iso) => new Date(iso).toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long", timeZone: LECTURA_TZ });
 
 
 function MiniCalendario({ year, month, dias, diaSel, onPick, onNav }) {
@@ -67,8 +68,8 @@ function ReprogramarModal({ turno, token, onClose, onDone }) {
   const servId = turno.professionalService?.service?.id;
   const duracion = turno.professionalService?.durationMinutes;
 
-  const inicial = new Date(turno.startsAt);
-  const [verMes, setVerMes] = useState({ year: inicial.getUTCFullYear(), month: inicial.getUTCMonth() + 1 });
+  const [iniY, iniM] = ymdDeInstante(turno.startsAt).split("-").map(Number);
+  const [verMes, setVerMes] = useState({ year: iniY, month: iniM });
   const [dias, setDias] = useState([]);
   const [diaSel, setDiaSel] = useState("");
   const [slots, setSlots] = useState([]);

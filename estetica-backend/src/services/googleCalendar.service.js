@@ -9,7 +9,10 @@ const ESTADO_LABEL = {
   NO_SHOW: 'No asistió',
 };
 
-const horaSinZona = (d) => new Date(d).toISOString().slice(0, 19);
+// startsAt/endsAt se guardan como instante UTC real. Lo mandamos con la "Z";
+// Google toma el instante exacto y lo muestra en CALENDAR_TZ. No hay que
+// recortar la zona ni reinterpretar la hora de pared.
+const instanteISO = (d) => new Date(d).toISOString();
 
 export const construirEvento = (turno) => {
   const paciente = turno.patient?.person?.name || 'Paciente';
@@ -35,12 +38,10 @@ export const construirEvento = (turno) => {
   return {
     summary: `${paciente} · ${servicio}`,
     description: descripcion,
-   
-    
-    start: { dateTime: horaSinZona(turno.startsAt).toISOString(), timeZone: CALENDAR_TZ },
-    end: { dateTime: horaSinZona(turno.endsAt).toISOString(), timeZone: CALENDAR_TZ },
-    
-    
+
+    start: { dateTime: instanteISO(turno.startsAt), timeZone: CALENDAR_TZ },
+    end: { dateTime: instanteISO(turno.endsAt), timeZone: CALENDAR_TZ },
+
     extendedProperties: {
       private: { appointmentId: turno.id, sistema: 'espacio-senda' },
     },
@@ -49,7 +50,7 @@ export const construirEvento = (turno) => {
 
 export const crearEvento = async (calendarId, evento) => {
   const { data } = await calendar.events.insert({ calendarId, requestBody: evento });
-  return data.id; 
+  return data.id;
 };
 
 export const actualizarEvento = async (calendarId, eventId, evento) => {

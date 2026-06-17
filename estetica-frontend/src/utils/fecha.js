@@ -1,6 +1,7 @@
 import { CLINIC_TZ } from "../config/clinica";
 
-export const STORAGE_INSTANTS_ARE_REAL = false;
+
+export const STORAGE_INSTANTS_ARE_REAL = true;
 
 export const LECTURA_TZ = STORAGE_INSTANTS_ARE_REAL ? CLINIC_TZ : "UTC";
 
@@ -85,11 +86,11 @@ export const hoyLectura = () =>
 export const diaNumero = (s) => parseYmd(s).getUTCDate();
 
 export const fmtHora = (iso) =>
-  new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", timeZone: LECTURA_TZ });
+  new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: LECTURA_TZ });
 
 export const fmtMomento = (iso) =>
   new Date(iso).toLocaleString("es-AR", {
-    day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: LECTURA_TZ,
+    day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: LECTURA_TZ,
   });
 
 export const fmtFechaLargaISO = (iso) =>

@@ -47,7 +47,7 @@ const LOG = {
  
 const fmtMomento = (iso) =>
   new Date(iso).toLocaleString("es-AR", {
-    day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+    day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false,
     timeZone: "America/Argentina/Buenos_Aires",
   });
 
@@ -462,7 +462,7 @@ const TurnosAdmin = () => {
               </div>
             )}
 
-            {/* ── Sincronización con Google + recordatorios enviados ── */}
+
             <div style={{ marginTop: 6, padding: 10, background: "#f8fafc", borderRadius: 6, display: "flex", flexDirection: "column", gap: 10 }}>
               <p style={{ margin: 0 }}>
                 <strong>📅 Google Calendar:</strong>{" "}

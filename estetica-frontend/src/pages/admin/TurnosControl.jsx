@@ -12,7 +12,7 @@ import { fmtHora, ymdDeInstante, LECTURA_TZ } from "../../utils/fecha";
 const hora = (iso) => (iso ? fmtHora(iso) : "—");
 
 const fechaHora = (iso) =>
-  iso ? new Date(iso).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: LECTURA_TZ }) : "—";
+  iso ? new Date(iso).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: LECTURA_TZ }) : "—";
 
 const fechaParedStr = ymdDeInstante;
 
