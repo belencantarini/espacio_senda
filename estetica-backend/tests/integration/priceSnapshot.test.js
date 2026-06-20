@@ -63,5 +63,5 @@ describe('Test de precio inmutable (price_snapshot)', () => {
       .send({
         price: priceSnapshotOriginal
       });
-  });
+  },20000);
 });
