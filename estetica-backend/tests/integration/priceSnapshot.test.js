@@ -1,12 +1,16 @@
 import request from 'supertest';
-import app from '../app.js';
+import app from '../../app.js';
 import jwt from 'jsonwebtoken';
 
 const generarTokenAdmin = () => {
-  return jwt.sign(
-    { id: 1, role: 'ADMIN', email: 'admin@espaciosenda.com' },
-    process.env.JWT_SECRET || 'espaciosenda',
-    { expiresIn: '1h' }
+  return jwt.sign({
+      id: 1,
+      role: 'ADMIN',
+      email: 'admin@espaciosenda.com'
+    },
+    process.env.JWT_SECRET || 'espaciosenda', {
+      expiresIn: '1h'
+    }
   );
 };
 
@@ -38,7 +42,9 @@ describe('Test de precio inmutable (price_snapshot)', () => {
     const patchRes = await request(app)
       .patch(`/api/services/professional-services/${professionalServiceId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ price: nuevoPrecio });
+      .send({
+        price: nuevoPrecio
+      });
 
     expect(patchRes.statusCode).toBe(200);
 
@@ -54,6 +60,8 @@ describe('Test de precio inmutable (price_snapshot)', () => {
     await request(app)
       .patch(`/api/services/professional-services/${professionalServiceId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ price: priceSnapshotOriginal });
+      .send({
+        price: priceSnapshotOriginal
+      });
   });
 });

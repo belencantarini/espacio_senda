@@ -1,13 +1,17 @@
 import request from 'supertest';
-import app from '../app.js';
+import app from '../../app.js';
 import jwt from 'jsonwebtoken';
 
 // Función para simular un Token de Admin
 const generarTokenAdmin = () => {
-  return jwt.sign(
-    { id: 1, role: 'ADMIN', email: 'admin@espaciosenda.com' },
-    process.env.JWT_SECRET || 'espaciosenda',
-    { expiresIn: '1h' }
+  return jwt.sign({
+      id: 1,
+      role: 'ADMIN',
+      email: 'admin@espaciosenda.com'
+    },
+    process.env.JWT_SECRET || 'espaciosenda', {
+      expiresIn: '1h'
+    }
   );
 };
 
