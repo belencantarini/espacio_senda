@@ -37,7 +37,7 @@
  *         description: Credenciales inválidas
  *       429:
  *         description: Demasiados intentos fallidos
- *      500:
+ *       500:
  *         description: Error interno del servidor
  */
 
