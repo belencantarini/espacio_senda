@@ -11,11 +11,28 @@
  *       - Reportes
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: desde
+ *         schema:
+ *           type: string
+ *           example: "2026-01-01"
+ *       - in: query
+ *         name: hasta
+ *         schema:
+ *           type: string
+ *           example: "2026-12-31"
+ *       - in: query
+ *         name: professionalId
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Reporte de ingresos obtenido correctamente
  *       401:
  *         description: Token inválido o ausente
+ *       403:
+ *         description: Acceso denegado (solo ADMIN)
  */
 
 /**
@@ -27,6 +44,21 @@
  *       - Reportes
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: desde
+ *         schema:
+ *           type: string
+ *           example: "2026-01-01"
+ *       - in: query
+ *         name: hasta
+ *         schema:
+ *           type: string
+ *           example: "2026-12-31"
+ *       - in: query
+ *         name: professionalId
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Reporte de turnos obtenido correctamente
@@ -43,9 +75,22 @@
  *       - Reportes
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: desde
+ *         schema:
+ *           type: string
+ *           example: "2026-01-01"
+ *       - in: query
+ *         name: hasta
+ *         schema:
+ *           type: string
+ *           example: "2026-12-31"
  *     responses:
  *       200:
  *         description: Reporte de servicios obtenido correctamente
  *       401:
  *         description: Token inválido o ausente
+ *       403:
+ *         description: Acceso denegado (solo ADMIN)
  */

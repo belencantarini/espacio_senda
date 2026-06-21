@@ -23,6 +23,7 @@
  * /api/users/people:
  *   get:
  *     summary: Buscar personas (pacientes y profesionales)
+ *     description: Requiere autenticación
  *     tags:
  *       - Usuarios
  *     security:
@@ -113,6 +114,14 @@
  *               rol:
  *                 type: string
  *                 example: RECEPTIONIST
+ *                cuilCuit:
+ *                 type: string
+ *               confirmLink:
+ *                 type: boolean
+ *               specialty:
+ *                 type: string
+ *               bio:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Usuario creado correctamente
@@ -149,8 +158,13 @@
  *                 type: string
  *               rol:
  *                 type: string
+ *               enum: [ADMIN, RECEPTIONIST, PROFESSIONAL]
  *               active:
  *                 type: boolean
+ *               specialty:
+ *                 type: string
+ *               bio:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Usuario actualizado correctamente
@@ -270,6 +284,10 @@
  *         description: Contraseña actual incorrecta
  *       401:
  *         description: Token inválido o ausente
+ *       403:
+ *         description: Solo podés cambiar tu propia contraseña
+ *       404:
+ *         description: Usuario no encontrado
  */
 
 /**

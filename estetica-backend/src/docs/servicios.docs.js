@@ -7,6 +7,7 @@
  * /api/services/categories:
  *   get:
  *     summary: Obtener todas las categorías de servicios
+ *     description: Disponible para ADMIN, RECEPTIONIST y PROFESSIONAL
  *     tags:
  *       - Categorías de Servicios
  *     security:
@@ -23,6 +24,7 @@
  * /api/services/categories:
  *   post:
  *     summary: Crear una categoría de servicio
+ *     description: Solo ADMIN
  *     tags:
  *       - Categorías de Servicios
  *     security:
@@ -59,6 +61,7 @@
  * /api/services/categories/{id}:
  *   patch:
  *     summary: Actualizar una categoría
+ *     description: Solo ADMIN
  *     tags:
  *       - Categorías de Servicios
  *     security:
@@ -97,6 +100,7 @@
  * /api/services/professional-services/by-professional/{professionalId}:
  *   get:
  *     summary: Obtener servicios asociados a un profesional
+ *     description: Disponible para ADMIN, RECEPTIONIST y PROFESSIONAL
  *     tags:
  *       - Servicios Profesionales
  *     security:
@@ -119,6 +123,7 @@
  * /api/services/professional-services:
  *   post:
  *     summary: Asociar un servicio a un profesional
+ *     description: Disponible para ADMIN y PROFESSIONAL
  *     tags:
  *       - Servicios Profesionales
  *     security:
@@ -148,6 +153,8 @@
  *                 type: integer
  *                 example: 45
  *     responses:
+ *       200:
+ *         description: Asociación reactivada correctamente
  *       201:
  *         description: Asociación creada correctamente
  *       400:
@@ -162,8 +169,8 @@
  * @swagger
  * /api/services/professional-services/{id}:
  *   patch:
- *     summary: Actualizar precio o duración de un servicio por profesional
- *     tags:
+ *     summary: Actualizar precio o duración de un servicio por profesiona
+ *     description: Disponible para ADMIN y PROFESSIONAL
  *       - Servicios Profesionales
  *     security:
  *       - bearerAuth: []
@@ -185,6 +192,9 @@
  *               durationMinutes:
  *                 type: integer
  *                 example: 60
+ *               active:
+ *                 type: boolean
+ *                 example: true
  *     responses:
  *       200:
  *         description: Asociación actualizada correctamente
@@ -201,6 +211,7 @@
  * /api/services:
  *   get:
  *     summary: Obtener todos los servicios
+ *     description: Disponible para ADMIN, RECEPTIONIST y PROFESSIONAL
  *     tags:
  *       - Servicios
  *     security:
@@ -223,6 +234,7 @@
  * /api/services/{id}:
  *   get:
  *     summary: Obtener un servicio por ID
+ *     description: Disponible para ADMIN, RECEPTIONIST y PROFESSIONAL
  *     tags:
  *       - Servicios
  *     security:
@@ -247,6 +259,7 @@
  * /api/services:
  *   post:
  *     summary: Crear un nuevo servicio
+ *     description: Solo ADMIN
  *     tags:
  *       - Servicios
  *     security:
@@ -315,6 +328,9 @@
  *               defaultDurationMinutes:
  *                 type: integer
  *                 example: 30
+ *               active:
+ *                 type: boolean
+ *                 example: true
  *               requiresPreConsult:
  *                 type: boolean
  *                 example: true
@@ -324,6 +340,8 @@
  *     responses:
  *       200:
  *         description: Servicio actualizado correctamente
+ *       400:
+ *         description: Duración inválida o categoría inexistente
  *       404:
  *         description: Servicio no encontrado
  *       401: 

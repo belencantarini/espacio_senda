@@ -40,6 +40,8 @@
  *         description: Profesional no encontrado
  *       401:
  *         description: Token inválido o ausente
+ *       403:
+ *         description: Acceso denegado
  */
 
 /**
@@ -64,14 +66,13 @@
  *               - email
  *               - phone
  *               - specialty
- *               - password
  *             properties:
  *               name:
  *                 type: string
  *                 example: Dra. Leila Senger
  *               documentType:
  *                 type: string
- *                 enum: [DNI, PASSPORT, CUIL, CUIT]
+ *                 enum: [DNI, PASSPORT, OTHER]
  *                 example: DNI
  *               document:
  *                 type: string
@@ -94,6 +95,12 @@
  *               password:
  *                 type: string
  *                 example: Password123!
+ *               cuilCuit:
+ *                 type: string
+ *                 example: 20301234567
+ *               confirmLink:
+ *                 type: boolean
+ *                 example: true
  *     responses:
  *       201:
  *         description: Profesional creado correctamente
@@ -101,6 +108,8 @@
  *         description: Ya existe un profesional con ese email
  *       401:
  *         description: Token inválido o ausente
+ *       403:
+ *         description: Acceso denegado
  */
 
 /**
@@ -128,6 +137,11 @@
  *                 type: string
  *               phone:
  *                 type: string
+ *               document:
+ *                 type: string
+ *               documentType:
+ *                 type: string
+ *                 enum: [DNI, PASSPORT, OTHER]
  *               specialty:
  *                 type: string
  *               bio:
@@ -143,6 +157,8 @@
  *         description: Profesional no encontrado
  *       401:
  *         description: Token inválido o ausente
+ *       403:
+ *         description: Acceso denegado
  */
 
 /**

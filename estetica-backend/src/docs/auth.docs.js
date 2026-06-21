@@ -37,6 +37,8 @@
  *         description: Credenciales inválidas
  *       429:
  *         description: Demasiados intentos fallidos
+ *       500:
+ *         description: Error interno del servidor
  */
 
 /**
@@ -53,6 +55,10 @@
  *         description: Perfil obtenido correctamente
  *       401:
  *         description: Token inválido o ausente
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error al obtener perfil
  */
 
 /**
@@ -80,6 +86,10 @@
  *         description: Email de recuperación enviado
  *       404:
  *         description: Email no encontrado
+ *       429:
+ *         description: Demasiados intentos de recuperación
+ *       500:
+ *         description: Error interno del servidor
  */
 
 /**
@@ -107,6 +117,24 @@
  *         description: Contraseña actualizada correctamente
  *       400:
  *         description: Token inválido o expirado
+ */
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Obtener perfil del usuario autenticado
+ *     tags:
+ *       - Autenticación
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Perfil obtenido correctamente
+ *       401:
+ *         description: Token inválido o ausente
+ *       404:
+ *         description: Usuario no encontrado
  */
 
 /**

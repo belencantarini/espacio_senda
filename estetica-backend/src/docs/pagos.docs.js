@@ -164,6 +164,8 @@
  *     responses:
  *       201:
  *         description: Reembolso registrado correctamente
+ *       400:
+ *         description: Datos inválidos o reembolso superior al monto disponible
  *       404:
  *         description: Turno no encontrado
  *       401:

@@ -86,6 +86,9 @@
  *               clinicalNotes:
  *                 type: string
  *                 example: Alergia a la lidocaína
+ *               confirmLink:
+ *                 type: boolean
+ *                 example: true
  *     responses:
  *       201:
  *         description: Paciente creado correctamente
@@ -122,7 +125,7 @@
  *                 type: string
  *               documentType:
  *                 type: string
- *                 enum: [DNI, PASSPORT, CUIL, CUIT]
+ *                 enum: [DNI, PASSPORT, OTHER]
  *               document:
  *                 type: string
  *               phone:
